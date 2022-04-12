@@ -1,39 +1,36 @@
-
-
-import pandas as pd
 import csv
-import googlemaps
-import geocoder
 from geopy.geocoders import Nominatim
 
 
-f = open('Data-nom.csv', 'r')
+with open('Data-nom.csv', 'r') as file:
+    addresses = list(csv.reader(file))
 
-NumberOfLine = 0
-for line in f:
-    NumberOfLine += 1
+listSize = len(addresses)
 
-print('Nombre de lignes: ',NumberOfLine)
+print('Nombre de lignes: ', listSize)
 
-e = 0
-d = 0
-while d < 20464 :
+index = 0
+while index < listSize:
+#    print(addresses[index])
 
-    e += 1
-    with open('Data-nom.csv', 'r') as file:
-        val = list(csv.reader(file))[e]
-        print(val)
-        x = val
+    progress = 100 * (index+1) / listSize
+
+    if addresses[index][0][0].isdigit():
         geolocator = Nominatim(user_agent="test")
-        location = geolocator.geocode(x)
+        location = geolocator.geocode(addresses[index])
 
+        if location is None:
+            print("[" + str(progress) + "%] No address found for " + str(addresses[index]) + " at index " + str(index))
+        else:
+            print("[" + str(progress) + "%] Found location " + str(location.address) + " at index " + str(index))
 
-    print(location.address)
-    latlong = (location.latitude, location.longitude)
-    print(latlong)
+            latlong = (location.latitude, location.longitude)
+#            print(latlong)
+            with open('out.csv', 'a', newline='') as csvfile:
+                writer = csv.writer(csvfile, delimiter=' ')
+                writer.writerow(latlong)
 
-    with open('out.csv', 'w', newline = '') as csvfile:
-        my_writer = csv.writer(csvfile, delimiter = ' ')
-        my_writer.writerow(latlong)
+    else:
+        print("[" + str(progress) + "%] Skipping " + str(addresses[index]) + " at index " + str(index))
 
-    d += 1
+    index += 1
