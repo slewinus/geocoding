@@ -1,9 +1,10 @@
 import csv
 from geopy.geocoders import Nominatim
 import logging
+import os
 
 
-with open('Data-nom.csv', 'r') as file:
+with open('venv/data/data_geocoded_ephad.csv', 'r') as file:
     addresses = list(csv.reader(file))
 
 listSize = len(addresses)
@@ -20,7 +21,7 @@ c_format = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message
 c_handler.setFormatter(c_format)
 logger.addHandler(c_handler)
 
-
+os.remove('venv/data/out.csv')
 
 while index < listSize:
 
@@ -36,10 +37,10 @@ while index < listSize:
             print("[" + str(progress) + "%] Found location " + str(location.address) + " at index " + str(index))
 
             latlong = (location.latitude, location.longitude)
-            with open('out.csv', 'a', newline='') as csvfile:
+            with open('venv/data/out.csv', 'a', newline='') as csvfile:
                 writer = csv.writer(csvfile, delimiter=' ')
+                writer.writerow(addresses[index])
                 writer.writerow(latlong)
-
     else:
         logger.warning("[" + str(progress) + "%] Skipping " + str(addresses[index]) + " at index " + str(index))
 
